@@ -1,0 +1,24 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/nitt"
+                tools:context=".MainActivity">
+<!--<include android:id="@+id/app_bar" layout="@layout/app_bar"/>-->
+    <Button
+    android:layout_width="match_parent"
+    android:layout_height="75dp"
+    android:background="@color/primarycolor"
+    android:backgroundTint="#52394ba3"
+    android:backgroundTintMode="src_in"
+    android:text="ENTER"
+    android:textSize="32sp"
+    android:id="@+id/enter"
+    android:layout_alignParentBottom="true"
+    android:layout_alignParentRight="true"
+    android:layout_alignParentEnd="true"
+    android:typeface="sans"
+    android:textStyle="bold"/>
+
+
+</RelativeLayout>

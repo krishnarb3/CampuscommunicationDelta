@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:background="@drawable/gridelement"
+              android:layout_height="match_parent">
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:textSize="2sp"
+        android:text="x"
+        android:focusable="false"
+        android:id="@+id/delete_button"
+        android:layout_margin="5dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:textColor="#000"
+        android:id="@+id/tag"
+        android:focusable="false"
+        android:text="HEY"
+        android:layout_alignParentTop="true"
+        android:layout_below="@+id/delete_button"
+        />
+</RelativeLayout>
