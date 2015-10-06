@@ -1,9 +1,6 @@
 package com.dev.pro.noob.rb.campuscommunicationdelta;
 
 import android.app.Activity;
-import android.app.NotificationManager;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
@@ -40,9 +37,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 
-import static com.dev.pro.noob.rb.campuscommunicationdelta.CommonUtilities.start3;
 import static com.dev.pro.noob.rb.campuscommunicationdelta.CommonUtilities.NEW_URL;
 import static com.dev.pro.noob.rb.campuscommunicationdelta.CommonUtilities.TAG;
+import static com.dev.pro.noob.rb.campuscommunicationdelta.CommonUtilities.start3;
 
 public class Director extends Fragment {
 
@@ -90,6 +87,7 @@ public class Director extends Fragment {
                 @Override
                 public void run() {
                     cheenisAdapter = new CustomAdapter(getActivity(), posts);
+                    Log.d(TAG,posts.toString());
                     cheenisListView.setAdapter(cheenisAdapter);
                 }
             });
@@ -110,7 +108,7 @@ public class Director extends Fragment {
         yes = (Button) v.findViewById(R.id.yes1_2);
         no = (Button) v.findViewById(R.id.no1_2);
         swipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipe_refresh_layout_2);
-        username = mListener.getusername3();
+        username = mListener.getusername1();
         status.setText(username);
 
         cheenisListView = (ListView) v.findViewById(R.id.listView_2);
@@ -195,7 +193,7 @@ public class Director extends Fragment {
         yes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mListener.logout3();
+
             }
         });
         no.setOnClickListener(new View.OnClickListener() {
@@ -234,13 +232,8 @@ public class Director extends Fragment {
     }
 
     public interface OnFragmentInteractionListener {
-        public String getusername3();
+        public String getusername1();
 
-        public void logout3();
-
-        public int scraper3();
-
-        public String newmes3();
     }
 
     public void clear() {
@@ -309,6 +302,7 @@ public class Director extends Fragment {
                     return;
                 }
                 JSONArray jsonArray = new JSONArray(js.get("messages").toString());
+                Log.d(TAG,"JSONARRAY: "+jsonArray.toString());
                 refreshmes = new ArrayList<>();
                 int i = 0;
                 for (; i < l; i++) {
@@ -316,9 +310,11 @@ public class Director extends Fragment {
                     if (update == 1 && tempjson.getString("sender").equals("director")) {
                         refreshmes.add(tempjson.toString());
                         posts.add(0, tempjson.toString());
+                        Log.d(TAG,"Posts in json : "+posts);
                     }
                 }
                 handler.sendEmptyMessage(0);
+                Log.d(TAG,"Handler Called ");
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (JSONException e) {

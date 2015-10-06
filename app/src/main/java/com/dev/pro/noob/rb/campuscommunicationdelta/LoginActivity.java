@@ -1,6 +1,5 @@
 package com.dev.pro.noob.rb.campuscommunicationdelta;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -42,9 +41,9 @@ import static com.dev.pro.noob.rb.campuscommunicationdelta.CommonUtilities.SERVE
 public class LoginActivity extends ActionBarActivity
 {
     public String TAG="TAG";
-    ProgressDialog pd;
     Button button;
     String name,password;
+    Intent intent;
     EditText edit_name,edit_passwd;
     GoogleCloudMessaging gcm;
     String regid = new String();
@@ -63,6 +62,7 @@ public class LoginActivity extends ActionBarActivity
         setContentView(R.layout.activity_login);
 
         edit_name = (EditText)findViewById(R.id.username);
+        intent = new Intent(LoginActivity.this, Posts.class);
         edit_passwd = (EditText)findViewById(R.id.password);
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         button = (Button)findViewById(R.id.login_button);
@@ -71,7 +71,6 @@ public class LoginActivity extends ActionBarActivity
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pd = ProgressDialog.show(LoginActivity.this, "Registering", "Please Wait...", true, false);
                 name = edit_name.getText().toString();
                 password = edit_passwd.getText().toString();
                 submit(view);
@@ -82,9 +81,6 @@ public class LoginActivity extends ActionBarActivity
     Handler h = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            pd.cancel();
-            edit_name.setEnabled(true);
-            edit_passwd.setEnabled(true);
             Toast.makeText(LoginActivity.this, "Authentication failed", Toast.LENGTH_SHORT).show();
         }
     };
@@ -129,9 +125,9 @@ public class LoginActivity extends ActionBarActivity
                 Log.i(TAG, "Registering device (regId = " + regId + ")");
                 String serverUrl = SERVER_URL;
                 Map<String, String> paramss = new HashMap<String, String>();
-                paramss.put("username", name);
+                paramss.put("username", name);//name
                 paramss.put("password", password);
-                paramss.put("gcmid", regId);
+                paramss.put("gcmid", regId);//regId
                 paramss.put("action_id", "0");
                 paramss.put("ad_id", t.getDeviceId());
                 long backoff = BACKOFF_MILLI_SECONDS + random.nextInt(1000);
@@ -165,11 +161,12 @@ public class LoginActivity extends ActionBarActivity
 
             @Override
             protected void onPostExecute(String msg) {
-                if(go)
+                /*if(go)
                 {
+                    pd.cancel();
                     Intent intent = new Intent(LoginActivity.this, Posts.class);
                     startActivity(intent);
-                }
+                }*/
             }
         }.execute(null, null, null);
 
@@ -233,15 +230,11 @@ public class LoginActivity extends ActionBarActivity
             }
             try {
                 JSONObject js = new JSONObject(line);
+                Log.d("gunner" , js.toString());
                 int s=Integer.parseInt(js.getString("status_id"));
                 if (s>0) {
-                    SharedPreferences store = getSharedPreferences("testgcm1", Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = store.edit();
-                    editor.putString("usertext", name);
-                    editor.putString("user_id", js.get("user_id").toString());
-                    editor.apply();
                     finish();
-                    //startActivity(i);
+                    startActivity(intent);
                     return;
                 } else h.sendEmptyMessage(0);
 

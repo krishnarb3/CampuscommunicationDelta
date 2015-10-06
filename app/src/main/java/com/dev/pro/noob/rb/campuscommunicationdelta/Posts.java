@@ -1,26 +1,24 @@
 package com.dev.pro.noob.rb.campuscommunicationdelta;
 
-import java.util.Locale;
-
 import android.net.Uri;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
-import android.view.Gravity;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+
+import java.util.Locale;
 
 
-public class Posts extends ActionBarActivity implements ActionBar.TabListener,MessageFragment.OnFragmentInteractionListener
+public class Posts extends ActionBarActivity implements ActionBar.TabListener,MessageFragment.OnFragmentInteractionListener,Fest.OnFragmentInteractionListener,Director.OnFragmentInteractionListener,NITpost.OnFragmentInteractionListener
 {
 
     /**
@@ -128,15 +126,30 @@ public class Posts extends ActionBarActivity implements ActionBar.TabListener,Me
     }
 
     @Override
+    public String getusername2()
+    {
+        return "106112058";
+    }
+
+    @Override
+    public String getusername3()
+    {
+        return "106112058";
+    }
+
+    @Override
+    public String getusername1()
+    {
+        return "106112058";
+    }
+
+    @Override
     public void onFragmentInteraction(Uri uri)
     {
 
     }
 
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
+
     public class SectionsPagerAdapter extends FragmentPagerAdapter
     {
 
@@ -150,7 +163,15 @@ public class Posts extends ActionBarActivity implements ActionBar.TabListener,Me
         {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
+            //if(position==0)
+              //  return Fragment.instantiate(getApplicationContext(),Fest.class.getName());
+            if(position==0)
+                return Fragment.instantiate(Posts.this,Fest.class.getName());
+            if(position==1)
+                return Fragment.instantiate(Posts.this,Director.class.getName());
             if(position==2)
+                return Fragment.instantiate(Posts.this,NITpost.class.getName());
+            if(position==3)
                 return MessageFragment.newInstance("","");
 
             return PlaceholderFragment.newInstance(position + 1);
@@ -160,7 +181,7 @@ public class Posts extends ActionBarActivity implements ActionBar.TabListener,Me
         public int getCount()
         {
             // Show 3 total pages.
-            return 3;
+            return 4;
         }
 
         @Override
@@ -175,6 +196,8 @@ public class Posts extends ActionBarActivity implements ActionBar.TabListener,Me
                     return getString(R.string.title_section2).toUpperCase(l);
                 case 2:
                     return getString(R.string.title_section3).toUpperCase(l);
+                case 3:
+                    return getString(R.string.title_section4).toUpperCase(l);
             }
             return null;
         }

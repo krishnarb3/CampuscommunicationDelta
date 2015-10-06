@@ -1,6 +1,7 @@
 package com.dev.pro.noob.rb.campuscommunicationdelta;
 
 import android.app.Activity;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
@@ -33,15 +34,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 
 import static com.dev.pro.noob.rb.campuscommunicationdelta.CommonUtilities.NEW_URL;
 import static com.dev.pro.noob.rb.campuscommunicationdelta.CommonUtilities.TAG;
-import static com.dev.pro.noob.rb.campuscommunicationdelta.CommonUtilities.start2;
+import static com.dev.pro.noob.rb.campuscommunicationdelta.CommonUtilities.start1;
 
-public class Fest extends Fragment
-{
+public class NITpost extends Fragment {
 
     private static final int MAX_ATTEMPTS = 1;
+    private static final int BACKOFF_MILLI_SECONDS = 2000;
+    private static final Random random = new Random();
 
     private OnFragmentInteractionListener mListener;
     String username;
@@ -54,6 +57,8 @@ public class Fest extends Fragment
     SwipeRefreshLayout swipeRefreshLayout;
     ArrayList<String> posts = new ArrayList<String>(), refreshmes = new ArrayList<>();
     JSONObject tempjson;
+
+    int process = 0;
 
     Handler mtoast = new Handler() {
         @Override
@@ -73,7 +78,6 @@ public class Fest extends Fragment
             Toast.makeText(getActivity(), "Failed connection", Toast.LENGTH_SHORT).show();
         }
     };
-
     Handler handler = new Handler() {
         @Override
         public synchronized void handleMessage(Message msg) {
@@ -81,12 +85,15 @@ public class Fest extends Fragment
                 @Override
                 public void run() {
                     cheenisAdapter.notifyDataSetChanged();
+                    if (update == -1)
+                        cheenisListView.setSelection(posts.size() - refreshmes.size());
                 }
             });
         }
     };
 
     int old_id = 0, new_id = 0;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -94,21 +101,23 @@ public class Fest extends Fragment
         if (container == null) {
             return null;
         }
-        v = inflater.inflate(R.layout.fragment_fest, container, false);
-        swipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipe_refresh_layout_1);
-        username = mListener.getusername3();
+        v = inflater.inflate(R.layout.fragment_nitpost, container, false);
+        swipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipe_refresh_layout);
+        username = mListener.getusername2();
 
-        cheenisListView = (ListView) v.findViewById(R.id.listView_1);
+        cheenisListView = (ListView) v.findViewById(R.id.listView);
         cheenisAdapter = new CustomAdapter(getActivity(), posts);
         cheenisListView.setAdapter(cheenisAdapter);
+        View footerView = ((LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.footer, null, false);
+        cheenisListView.addFooterView(footerView);
 
-        if (start2) {
+        if (start1) {
             new AsyncTask<Void, Void, String>() {
                 @Override
                 protected String doInBackground(Void... params) {
                     MyDBHandler d = new MyDBHandler(getActivity(), null, null, 1);
                     SQLiteDatabase db = d.getDB();
-                    String query = "SELECT * FROM " + "fposts" + " WHERE 1 ORDER BY " + "_id" + " DESC;";
+                    String query = "SELECT * FROM " + "posts" + " WHERE 1 ORDER BY " + "_id" + " DESC;";
                     Cursor c = db.rawQuery(query, null);
                     //Move to the first row in your results
                     c.moveToFirst();
@@ -127,60 +136,129 @@ public class Fest extends Fragment
                 protected void onPostExecute(String msg) {
                 }
             }.execute(null, null, null);
-            start2 = false;
+            start1 = false;
         }
 
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener()
-        {
+        footerView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onRefresh()
-            {
-                swipeRefreshLayout.setRefreshing(true);
-                new AsyncTask<Void, Void, String>()
-                {
+            public void onClick(View v) {
+                new AsyncTask<Void, Void, String>() {
                     @Override
-                    protected String doInBackground(Void... params)
-                    {
-                        update = 1;
+                    protected String doInBackground(Void... params) {
+                        if (process == 1) return "";
+                        toast.sendEmptyMessage(0);
+                        process = 1;
+                        update = -1;
                         String msg = "";
                         String serverUrl = NEW_URL;
-                        MyDBHandler d = new MyDBHandler(getActivity(), null, null, 1);
-                        SQLiteDatabase db = d.getDB();
-                        String query = "SELECT * FROM " + "fposts" + " WHERE 1 ORDER BY " + "_id" + " DESC;";
-                        Cursor c = db.rawQuery(query, null);
-                        //Move to the first row in your results
-                        c.moveToFirst();
-                        db.close();
-                        if (c.getCount() != 0)
-                        {
-                            new_id = c.getInt(c.getColumnIndex("_id"));
+                        if (old_id == 0) {
+                            MyDBHandler d = new MyDBHandler(getActivity(), null, null, 1);
+                            SQLiteDatabase db = d.getDB();
+                            String query = "SELECT * FROM " + "posts" + " WHERE 1 ORDER BY " + "_id" + " ASC;";
+                            Cursor c = db.rawQuery(query, null);
+                            //Move to the first row in your results
+                            c.moveToFirst();
+                            db.close();
+                            if (c.getCount() != 0) {
+                                old_id = c.getInt(c.getColumnIndex("_id"));
+                            } else {
+                                failtoast.sendEmptyMessage(0);
+                                return "";
+                            }
                         }
                         Map<String, String> paramss = new HashMap<String, String>();
-                        paramss.put("action_id", "2");
-                        paramss.put("latest_msg_id", new_id + "");
-                        for (int i = 1; i <= MAX_ATTEMPTS; i++)
-                        {
+                        paramss.put("oldest_msg_id", old_id + "");
+                        paramss.put("action_id", "3");
+                        paramss.put("no_of_msgs", "20");
+                        long backoff = BACKOFF_MILLI_SECONDS + random.nextInt(1000);
+                        for (int i = 1; i <= MAX_ATTEMPTS; i++) {
                             Log.d(TAG, "Attempt #" + i + " to register");
-                            try
-                            {
+                            try {
                                 posta(serverUrl, paramss);
                                 return msg;
-                            } catch (IOException e)
-                            {
+                            } catch (IOException e) {
                                 Log.e(TAG, "Failed to register on attempt " + i + ":" + e);
                                 failtoast.sendEmptyMessage(0);
-                                if (i == MAX_ATTEMPTS)
-                                {
+                                if (i == MAX_ATTEMPTS) {
                                     break;
                                 }
+                                try {
+                                    Log.d(TAG, "Sleeping for " + backoff + " ms before retry");
+                                    Thread.sleep(backoff);
+                                } catch (InterruptedException e1) {
+                                    // Activity finished before we complete - exit.
+                                    Log.d(TAG, "Thread interrupted: abort remaining retries!");
+                                    Thread.currentThread().interrupt();
+                                    return msg;
+                                }
+                                // increase backoff exponentially
+                                backoff *= 2;
                             }
                         }
                         return msg;
                     }
 
                     @Override
-                    protected void onPostExecute(String msg)
-                    {
+                    protected void onPostExecute(String msg) {
+                        process = 0;
+                    }
+                }.execute(null, null, null);
+            }
+        });
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                swipeRefreshLayout.setRefreshing(true);
+                new AsyncTask<Void, Void, String>() {
+                    @Override
+                    protected String doInBackground(Void... params) {
+                        update = 1;
+                        String msg = "";
+                        String serverUrl = NEW_URL;
+                        MyDBHandler d = new MyDBHandler(getActivity(), null, null, 1);
+                        SQLiteDatabase db = d.getDB();
+                        String query = "SELECT * FROM " + "posts" + " WHERE 1 ORDER BY " + "_id" + " DESC;";
+                        Cursor c = db.rawQuery(query, null);
+                        //Move to the first row in your results
+                        c.moveToFirst();
+                        db.close();
+                        if (c.getCount() != 0) {
+                            new_id = c.getInt(c.getColumnIndex("_id"));
+                        }
+                        Map<String, String> paramss = new HashMap<String, String>();
+                        paramss.put("action_id", "2");
+                        paramss.put("latest_msg_id", new_id + "");
+                        long backoff = BACKOFF_MILLI_SECONDS + random.nextInt(1000);
+                        for (int i = 1; i <= MAX_ATTEMPTS; i++) {
+                            Log.d(TAG, "Attempt #" + i + " to register");
+                            try {
+                                posta(serverUrl, paramss);
+                                return msg;
+                            } catch (IOException e) {
+                                Log.e(TAG, "Failed to register on attempt " + i + ":" + e);
+                                failtoast.sendEmptyMessage(0);
+                                if (i == MAX_ATTEMPTS) {
+                                    break;
+                                }
+                                try {
+                                    Log.d(TAG, "Sleeping for " + backoff + " ms before retry");
+                                    Thread.sleep(backoff);
+                                } catch (InterruptedException e1) {
+                                    // Activity finished before we complete - exit.
+                                    Log.d(TAG, "Thread interrupted: abort remaining retries!");
+                                    Thread.currentThread().interrupt();
+                                    return msg;
+                                }
+                                // increase backoff exponentially
+                                backoff *= 2;
+                            }
+                        }
+                        return msg;
+                    }
+
+                    @Override
+                    protected void onPostExecute(String msg) {
                         swipeRefreshLayout.setRefreshing(false);
                     }
                 }.execute(null, null, null);
@@ -202,14 +280,14 @@ public class Fest extends Fragment
     }
 
     public interface OnFragmentInteractionListener {
-        public String getusername3();
+        public String getusername2();
     }
 
     public void clear() {
         MyDBHandler dbHandler = new MyDBHandler(getActivity(), null, null, 1);
         int sizeof = refreshmes.size();
         for (int i = 0; i < sizeof; i++) {
-            dbHandler.addName(refreshmes.get(i), "fposts");
+            dbHandler.addName(refreshmes.get(i), "posts");
         }
     }
 
@@ -275,10 +353,9 @@ public class Fest extends Fragment
                 int i = 0;
                 for (; i < l; i++) {
                     tempjson = jsonArray.getJSONObject(i);
-                    if (update == 1 && tempjson.getString("sender").equals("fest")) {
-                        refreshmes.add(tempjson.toString());
-                        posts.add(0, tempjson.toString());
-                    }
+                    refreshmes.add(tempjson.toString());
+                    if (update == -1) posts.add(posts.size(), tempjson.toString());
+                    if (update == 1) posts.add(0, tempjson.toString());
                 }
                 handler.sendEmptyMessage(0);
             } catch (IOException e) {

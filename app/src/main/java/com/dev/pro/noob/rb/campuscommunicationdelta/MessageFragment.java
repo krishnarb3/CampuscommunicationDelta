@@ -38,6 +38,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 
+import static com.dev.pro.noob.rb.campuscommunicationdelta.CommonUtilities.NEW_URL;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -47,8 +48,6 @@ import java.util.Random;
  * Use the {@link MessageFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-import static com.dev.pro.noob.rb.campuscommunicationdelta.CommonUtilities.SERVER_URL;
-import static com.dev.pro.noob.rb.campuscommunicationdelta.CommonUtilities.NEW_URL;
 
 
 public class MessageFragment extends Fragment implements GridViewAdapter.deletebuttonlistener

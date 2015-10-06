@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:background="@drawable/card_background"
+    android:alpha=".5">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="40px"
+        android:text="LOAD MORE"
+        android:layout_marginLeft="5px"
+        android:layout_marginBottom="5px"
+        android:layout_marginRight="5px"
+        android:layout_marginTop="5px"
+        android:gravity="center_horizontal"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:textColor="#000000"
+        android:alpha=".5" />
+
+</RelativeLayout>
